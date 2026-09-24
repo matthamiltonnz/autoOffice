@@ -149,7 +149,7 @@ Open the add-in task pane and click the settings gear:
 - **Provider:** Anthropic, OpenAI, or any OpenAI-compatible endpoint (Ollama, LM Studio, Open WebUI, etc.)
 - **Base URL:** for self-hosted providers — `http://localhost:1234/v1` for LM Studio, `http://localhost:8080/api` for Open WebUI
 - **API Key:** stored locally, never sent anywhere except directly to the provider
-- **Model:** e.g. `claude-opus-4-7`, `gpt-4o`
+- **Model:** e.g. `claude-opus-4-7`, `gpt-4o` — for LM Studio and Open WebUI the list is fetched from the server, so you pick it from a dropdown
 - **Auto-approve:** skip the approve step and run code immediately
 - **MCP Servers:** add HTTP/SSE MCP servers to extend the agent with external tools
 
