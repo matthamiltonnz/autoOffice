@@ -11,6 +11,7 @@
   "chat": {
     "welcomeTitle": "ברוכים הבאים ל-AutoOffice",
     "welcomeMessage": "בקשו ממני לעשות כל דבר ב{{noun}} ה-{{host}} שלכם. אכתוב קוד office.js וארוץ אותו בשבילכם.",
+    "exampleOutlook": "נסו: \"סכמו את המייל הזה\" או \"נסחו תשובה\"",
     "exampleWord": "נסו: \"צבע את כל הכותרות בכחול\" או \"הוסף טבלה עם 3 עמודות\"",
     "exampleExcel": "נסו: \"מלא את עמודה A במספרים 1 עד 10\" או \"צור גרף מ-B2:D8\"",
     "examplePowerpoint": "נסו: \"הוסף שקופית בכותרת 'תוכנית רבעון 3' עם שלושה סעיפים\" או \"הפוך את כל כותרות השקופיות למודגשות\"",
@@ -19,9 +20,11 @@
     "settingsTooltip": "הגדרות",
     "historyTooltip": "היסטוריה",
     "newChatTooltip": "צ'אט חדש",
+    "hostOutlook": "Outlook",
     "hostWord": "Word",
     "hostExcel": "Excel",
     "hostPowerpoint": "PowerPoint",
+    "hostNounOutlook": "אימייל",
     "hostNounWord": "מסמך",
     "hostNounExcel": "גיליון",
     "hostNounPowerpoint": "מצגת"
@@ -97,6 +100,7 @@
     "closeAria": "סגור",
     "filterCurrent": "אפליקציה נוכחית",
     "filterAll": "הכל",
+    "filterOutlook": "Outlook",
     "filterWord": "Word",
     "filterExcel": "Excel",
     "filterPowerpoint": "PowerPoint",

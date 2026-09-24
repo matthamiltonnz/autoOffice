@@ -11,6 +11,7 @@
   "chat": {
     "welcomeTitle": "Welcome to AutoOffice",
     "welcomeMessage": "Ask me to do anything with your {{host}} {{noun}}. I'll write and run office.js code to make it happen.",
+    "exampleOutlook": "Try: \"Summarise this email\" or \"Draft a reply\"",
     "exampleWord": "Try: \"Make all headings blue\" or \"Insert a 3-column table\"",
     "exampleExcel": "Try: \"Put 1 through 10 in column A\" or \"Make a chart from B2:D8\"",
     "examplePowerpoint": "Try: \"Add a slide titled 'Q3 plan' with three bullets\" or \"Make all slide titles bold\"",
@@ -19,9 +20,11 @@
     "settingsTooltip": "Settings",
     "historyTooltip": "History",
     "newChatTooltip": "New chat",
+    "hostOutlook": "Outlook",
     "hostWord": "Word",
     "hostExcel": "Excel",
     "hostPowerpoint": "PowerPoint",
+    "hostNounOutlook": "email",
     "hostNounWord": "document",
     "hostNounExcel": "workbook",
     "hostNounPowerpoint": "presentation"
@@ -97,6 +100,7 @@
     "closeAria": "Close",
     "filterCurrent": "Current host",
     "filterAll": "All",
+    "filterOutlook": "Outlook",
     "filterWord": "Word",
     "filterExcel": "Excel",
     "filterPowerpoint": "PowerPoint",

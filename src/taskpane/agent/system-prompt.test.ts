@@ -23,3 +23,27 @@ describe('buildSystemPrompt', () => {
     expect(p).toContain('CRITICAL RULES for office.js code');
   });
 });
+
+describe('buildSystemPrompt — Outlook host', () => {
+  const prompt = buildSystemPrompt('outlook', ['message', 'compose'], 'en');
+
+  it('names Microsoft Outlook and the Mailbox API', () => {
+    expect(prompt).toContain('Microsoft Outlook');
+    expect(prompt).toContain('Office.js Mailbox API');
+  });
+
+  it('does not apply the Word/Excel load() + sync() batching rules', () => {
+    expect(prompt).not.toContain('You MUST load() properties before reading them');
+    expect(prompt).not.toContain('You MUST await context.sync()');
+    expect(prompt).toContain('NEVER call load() or context.sync()');
+  });
+
+  it('explains that Outlook has no Office.run() wrapper', () => {
+    expect(prompt).toContain('there is no Office.run() wrapper');
+  });
+
+  it('lists the Outlook skill topics passed in', () => {
+    expect(prompt).toContain('message, compose');
+  });
+});
+

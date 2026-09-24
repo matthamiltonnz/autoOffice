@@ -7,11 +7,14 @@ export function buildSystemPrompt(
   skills: readonly string[],
   locale: LocaleId,
 ): string {
+  const isOutlook = host === 'outlook';
   const hostName =
+    isOutlook ? 'Microsoft Outlook' :
     host === 'word' ? 'Microsoft Word' :
     host === 'excel' ? 'Microsoft Excel' :
     'Microsoft PowerPoint';
   const apiRoot =
+    isOutlook ? 'Office' :
     host === 'word' ? 'Word' :
     host === 'excel' ? 'Excel' :
     'PowerPoint';
@@ -21,6 +24,24 @@ export function buildSystemPrompt(
       : host === 'excel'
         ? '- For inserting/clearing ranges, prefer typed Excel APIs (e.g. range.values = [[...]], range.clear()) over string concatenation'
         : '- Most edits go through shapes; many things (inserting tables, complex charts, new slides with arbitrary layout) require OOXML round-trips via presentation.insertSlidesFromBase64';
+
+  const batchRules = isOutlook
+    ? `- Mailbox APIs are callback based: wrap each ...Async call in a Promise and await it
+- NEVER call load() or context.sync() — Outlook items have no proxy/load model
+- In read mode the item is read-only; write by opening a reply/forward form instead`
+    : `- You MUST load() properties before reading them
+- You MUST await context.sync() after load() and before accessing values
+${insertEnumNote}`;
+
+  const apiModelClause = isOutlook
+    ? 'the Office.js Mailbox API (Office.context.mailbox)'
+    : `the ${apiRoot} object model`;
+
+  const codeShapeClause = isOutlook
+    ? 'a plain async body — there is no Office.run() wrapper, the executor wraps your code in an async function'
+    : `a full ${apiRoot}.run() block or just the inner body — the executor handles both`;
+
+  const taskNoun = isOutlook ? 'the open email or meeting item' : 'the document';
 
   const meta = LOCALES[locale];
   const localeClause =
@@ -36,19 +57,17 @@ You have tools to look up API documentation and execute code.
 Available skill topics for lookup_skill: ${skills.join(', ')}.
 
 CRITICAL RULES for office.js code:
-- You MUST load() properties before reading them
-- You MUST await context.sync() after load() and before accessing values
-${insertEnumNote}
+${batchRules}
 - NEVER use DOM manipulation — only the office.js API
-- Code runs in a sandbox with access to the ${apiRoot} object model
+- Code runs in a sandbox with access to ${apiModelClause}
 
-When the user asks you to do something with the document:
+When the user asks you to do something with ${taskNoun}:
 1. ALWAYS call lookup_skill before writing code — it provides the correct API patterns, types, and examples for the relevant topic
-2. To read state, write execute_code that loads and returns the needed properties
+2. To read state, write execute_code that ${isOutlook ? 'reads' : 'loads'} and returns the needed properties
 3. Generate the code and call execute_code
 4. If execution fails, analyze the error and try again (up to 3 attempts)
 
-Your code can be either a full ${apiRoot}.run() block or just the inner body — the executor handles both.
+Your code can be ${codeShapeClause}.
 
 ${localeClause}`;
 }

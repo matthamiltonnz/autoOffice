@@ -4,7 +4,7 @@
 
 <h1 align="center">AutoOffice</h1>
 
-<p align="center">AI-powered Microsoft Word + Excel + PowerPoint add-in that writes and executes real <code>office.js</code> code on demand.</p>
+<p align="center">AI-powered Microsoft Word + Excel + PowerPoint + Outlook add-in that writes and executes real <code>office.js</code> code on demand.</p>
 
 ## What It Does
 
@@ -121,6 +121,27 @@ Same scripts but targeting PowerPoint:
 npm run start:powerpoint       # debugger
 npm run sideload:powerpoint    # no debugger
 ```
+
+### Run + sideload Outlook
+
+Outlook needs its own manifest — `manifest.outlook.xml` — because an add-in manifest can contain only one `<VersionOverrides>` element, and the Mailbox host uses the `mailappversionoverrides` namespace while Word/Excel/PowerPoint use `taskpaneappversionoverrides`. Both manifests point at the same web app.
+
+**macOS** — sideload into Outlook's `wef` folder, then restart Outlook:
+
+```bash
+npm run sideload:outlook:mac
+```
+
+**Windows** — Office debugging tooling:
+
+```bash
+npm run start:outlook
+```
+
+Then in Outlook: **Home → Add-ins → AutoOffice**. In Outlook on the web: **Get Add-ins → My add-ins → Add a custom add-in → Add from file**, uploading `manifest.outlook.xml` (or `manifest.outlook.production.xml` for a hosted build — edit its URLs to your Pages domain first, exactly as described above).
+
+Capabilities and limits: the manifest requests **Mailbox 1.3** and **ReadWriteItem**, so the agent can read the open message or meeting (subject, sender, recipients, body, attachment metadata) and write drafts (body, subject, recipients, reply/forward forms, attachments). Reading other messages or folders would need `ReadWriteMailbox` plus EWS/REST, which is deliberately out of scope.
+
 
 ### Run dev server only
 

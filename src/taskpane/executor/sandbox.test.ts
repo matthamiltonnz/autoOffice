@@ -51,3 +51,28 @@ describe('Sandbox.execute — Office.js debug info', () => {
     expect(result.debugInfo).toBeUndefined();
   });
 });
+
+describe('Sandbox.execute — Outlook host', () => {
+  it('runs a plain async body (there is no Office.run wrapper)', async () => {
+    const sandbox = new Sandbox('outlook');
+    sandbox.init();
+    const result = await sandbox.execute('return 1 + 1;');
+    expect(result.success).toBe(true);
+    expect(result.output).toBe(2);
+  });
+
+  it('awaits promises returned by the body', async () => {
+    const sandbox = new Sandbox('outlook');
+    const result = await sandbox.execute('const v = await Promise.resolve(7); return v;');
+    expect(result.success).toBe(true);
+    expect(result.output).toBe(7);
+  });
+
+  it('rejects Word/Excel/PowerPoint batch code', async () => {
+    const sandbox = new Sandbox('outlook');
+    const result = await sandbox.execute('Word.run(async () => {});');
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('Office.js Mailbox API');
+  });
+});
+

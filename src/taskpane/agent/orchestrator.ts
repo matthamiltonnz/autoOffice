@@ -79,8 +79,11 @@ export async function runAgent(
   const executeCode = tool({
     description:
       'Submit generated office.js code for execution in the sandbox. ' +
-      `The code can be either a complete ${host === 'word' ? 'Word' : host === 'excel' ? 'Excel' : 'PowerPoint'}.run(async (context) => { ... }) block, ` +
-      'or just the inner body (the executor wraps it automatically). ' +
+      (host === 'outlook'
+        ? 'The code must be a plain async body — Office.run() does not exist in Outlook; work through Office.context.mailbox.item. ' +
+          'Return the data you want the user to see. '
+        : `The code can be either a complete ${host === 'word' ? 'Word' : host === 'excel' ? 'Excel' : 'PowerPoint'}.run(async (context) => { ... }) block, ` +
+          'or just the inner body (the executor wraps it automatically). ') +
       'Always use proper load() and context.sync() patterns. ' +
       'If you are unsure about the correct API, call lookup_skill first to get the right patterns and examples.',
     inputSchema: jsonSchema<{ code: string }>({

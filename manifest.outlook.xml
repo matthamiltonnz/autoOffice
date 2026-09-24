@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  AutoOffice for Outlook — dev manifest (sideload build).
+
+  Outlook needs its own manifest: an add-in manifest can carry only one
+  <VersionOverrides> element, and the Mailbox host uses the
+  mailappversionoverrides namespace while Word/Excel/PowerPoint use
+  taskpaneappversionoverrides. Same web app (https://localhost:3721), separate
+  registration.
+
+  Sideload: copy this file into Word/Outlook's wef folder:
+    ~/Library/Containers/com.microsoft.Outlook/Data/Documents/wef/
+  then restart Outlook and pick Home > Add-ins > AutoOffice (or, in Outlook on
+  the web, Get Add-ins > My add-ins > Add a custom add-in > Add from file).
+-->
+<OfficeApp
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides"
+  xsi:type="MailApp">
+  <Id>72dfce26-610e-474e-a855-2e9809b7a82c</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>AutoOffice</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="AutoOffice" />
+  <Description DefaultValue="AI-powered dynamic code execution add-in for Microsoft Outlook" />
+  <IconUrl DefaultValue="https://localhost:3721/assets/icon-32.png" />
+  <HighResolutionIconUrl DefaultValue="https://localhost:3721/assets/icon-64.png" />
+  <SupportUrl DefaultValue="https://localhost:3721" />
+  <Hosts>
+    <Host Name="Mailbox" />
+  </Hosts>
+  <Requirements>
+    <Sets DefaultMinVersion="1.1">
+      <Set Name="Mailbox" MinVersion="1.3" />
+    </Sets>
+  </Requirements>
+  <FormSettings>
+    <Form xsi:type="ItemRead">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://localhost:3721/" />
+        <RequestedHeight>450</RequestedHeight>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+  <!-- Read/write on the currently open item only. Mailbox-wide access (search,
+       other folders, attachment bytes) would need ReadWriteMailbox. -->
+  <Permissions>ReadWriteItem</Permissions>
+  <Rule xsi:type="RuleCollection" Mode="Or">
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Read" />
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Edit" />
+    <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Read" />
+    <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Edit" />
+  </Rule>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <DesktopFormFactor>
+          <ExtensionPoint xsi:type="MessageReadCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="msgReadGroup">
+                <Label resid="group.Label" />
+                <Control xsi:type="Button" id="msgReadOpenPaneButton">
+                  <Label resid="paneButton.Label" />
+                  <Supertip>
+                    <Title resid="paneButton.Label" />
+                    <Description resid="paneButton.Desc" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="icon.16x16" />
+                    <bt:Image size="32" resid="icon.32x32" />
+                    <bt:Image size="80" resid="icon.80x80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>AutoOfficePane</TaskpaneId>
+                    <SourceLocation resid="taskpane.Url" />
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+          <ExtensionPoint xsi:type="MessageComposeCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="msgComposeGroup">
+                <Label resid="group.Label" />
+                <Control xsi:type="Button" id="msgComposeOpenPaneButton">
+                  <Label resid="paneButton.Label" />
+                  <Supertip>
+                    <Title resid="paneButton.Label" />
+                    <Description resid="paneButton.Desc" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="icon.16x16" />
+                    <bt:Image size="32" resid="icon.32x32" />
+                    <bt:Image size="80" resid="icon.80x80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>AutoOfficePane</TaskpaneId>
+                    <SourceLocation resid="taskpane.Url" />
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="icon.16x16" DefaultValue="https://localhost:3721/assets/icon-16.png" />
+        <bt:Image id="icon.32x32" DefaultValue="https://localhost:3721/assets/icon-32.png" />
+        <bt:Image id="icon.80x80" DefaultValue="https://localhost:3721/assets/icon-80.png" />
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="taskpane.Url" DefaultValue="https://localhost:3721/" />
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="group.Label" DefaultValue="AutoOffice" />
+        <bt:String id="paneButton.Label" DefaultValue="AutoOffice" />
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="paneButton.Desc" DefaultValue="Summarise, draft, or rewrite this item with AutoOffice" />
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>

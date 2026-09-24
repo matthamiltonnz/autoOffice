@@ -7,7 +7,7 @@ export function makeLookupSkillTool(host: HostKind) {
   const skills = listSkills(host);
   return tool({
     description:
-      `Fetch office.js API documentation for a specific domain in ${host === 'word' ? 'Microsoft Word' : host === 'excel' ? 'Microsoft Excel' : 'Microsoft PowerPoint'}. ` +
+      `Fetch office.js API documentation for a specific domain in ${host === 'word' ? 'Microsoft Word' : host === 'excel' ? 'Microsoft Excel' : host === 'powerpoint' ? 'Microsoft PowerPoint' : 'Microsoft Outlook'}. ` +
       `Call this before writing code to get the correct API patterns, types, and examples. ` +
       `Available domains: ${skills.join(', ')}.`,
     inputSchema: jsonSchema<{ name: string }>({

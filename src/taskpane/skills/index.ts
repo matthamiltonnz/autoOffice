@@ -3,17 +3,20 @@ import type { HostKind } from '../host/context.ts';
 import { WORD_SKILLS, WORD_SKILL_NAMES } from './word/index.ts';
 import { EXCEL_SKILLS, EXCEL_SKILL_NAMES } from './excel/index.ts';
 import { POWERPOINT_SKILLS, POWERPOINT_SKILL_NAMES } from './powerpoint/index.ts';
+import { OUTLOOK_SKILLS, OUTLOOK_SKILL_NAMES } from './outlook/index.ts';
 
 const TABLES: Record<HostKind, Record<string, string>> = {
   word: WORD_SKILLS,
   excel: EXCEL_SKILLS,
   powerpoint: POWERPOINT_SKILLS,
+  outlook: OUTLOOK_SKILLS,
 };
 
 const NAMES: Record<HostKind, readonly string[]> = {
   word: WORD_SKILL_NAMES,
   excel: EXCEL_SKILL_NAMES,
   powerpoint: POWERPOINT_SKILL_NAMES,
+  outlook: OUTLOOK_SKILL_NAMES,
 };
 
 export function listSkills(host: HostKind): readonly string[] {

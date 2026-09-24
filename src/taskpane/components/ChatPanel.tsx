@@ -124,12 +124,14 @@ export function ChatPanel({
   const hostDisplay = t(
     host.kind === 'word' ? 'chat.hostWord' :
     host.kind === 'excel' ? 'chat.hostExcel' :
-    'chat.hostPowerpoint',
+    host.kind === 'powerpoint' ? 'chat.hostPowerpoint' :
+    'chat.hostOutlook',
   );
   const hostNoun = t(
     host.kind === 'word' ? 'chat.hostNounWord' :
     host.kind === 'excel' ? 'chat.hostNounExcel' :
-    'chat.hostNounPowerpoint',
+    host.kind === 'powerpoint' ? 'chat.hostNounPowerpoint' :
+    'chat.hostNounOutlook',
   );
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -172,7 +174,7 @@ export function ChatPanel({
           <Badge
             appearance="outline"
             size="small"
-            color={host.kind === 'excel' ? 'success' : host.kind === 'powerpoint' ? 'danger' : 'brand'}
+            color={host.kind === 'excel' ? 'success' : host.kind === 'powerpoint' ? 'danger' : host.kind === 'outlook' ? 'important' : 'brand'}
           >
             {host.displayName}
           </Badge>
@@ -205,7 +207,9 @@ export function ChatPanel({
                 ? t('chat.exampleWord')
                 : host.kind === 'excel'
                   ? t('chat.exampleExcel')
-                  : t('chat.examplePowerpoint')}
+                  : host.kind === 'powerpoint'
+                    ? t('chat.examplePowerpoint')
+                    : t('chat.exampleOutlook')}
             </Text>
           </div>
         ) : (
