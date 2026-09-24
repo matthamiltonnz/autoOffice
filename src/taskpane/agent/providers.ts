@@ -12,6 +12,7 @@ import type { LanguageModel } from 'ai';
 import type { AppSettings } from '../store/settings.ts';
 import { LOCAL_PROVIDER_IDS } from '../store/settings.ts';
 import { ConfigError } from './errors.ts';
+import { normalizeOpenWebUiBaseUrl } from './openwebui.ts';
 
 export function createModel(settings: AppSettings): LanguageModel {
   const provider = settings.providers.find(p => p.id === settings.selectedProviderId);
@@ -101,6 +102,15 @@ export function createModel(settings: AppSettings): LanguageModel {
         name: 'lmstudio',
         apiKey: provider.apiKey || 'lm-studio',
         baseURL: baseUrl,
+      });
+      return compat(settings.selectedModel);
+    }
+    case 'openwebui': {
+      // Open WebUI exposes an OpenAI-compatible API under `<host>/api`.
+      const compat = createOpenAICompatible({
+        name: 'openwebui',
+        ...(provider.apiKey ? { apiKey: provider.apiKey } : {}),
+        baseURL: normalizeOpenWebUiBaseUrl(provider.baseUrl || ''),
       });
       return compat(settings.selectedModel);
     }

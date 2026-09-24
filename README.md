@@ -146,7 +146,8 @@ npm run stop
 
 Open the add-in task pane and click the settings gear:
 
-- **Provider:** Anthropic, OpenAI, or any OpenAI-compatible endpoint (Ollama, LM Studio, etc.)
+- **Provider:** Anthropic, OpenAI, or any OpenAI-compatible endpoint (Ollama, LM Studio, Open WebUI, etc.)
+- **Base URL:** for self-hosted providers — `http://localhost:1234/v1` for LM Studio, `http://localhost:8080/api` for Open WebUI
 - **API Key:** stored locally, never sent anywhere except directly to the provider
 - **Model:** e.g. `claude-opus-4-7`, `gpt-4o`
 - **Auto-approve:** skip the approve step and run code immediately

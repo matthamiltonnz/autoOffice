@@ -54,7 +54,12 @@
     "lmstudioStatusConnected": "Connected · {{count}} models",
     "lmstudioStatusUnreachable": "Not running",
     "lmstudioCorsHint": "Open LM Studio → Developer → enable CORS, or run \"lms server start --cors\" in a terminal.",
-    "lmstudioRefreshAria": "Refresh model list"
+    "lmstudioRefreshAria": "Refresh model list",
+    "openwebuiStatusChecking": "Checking…",
+    "openwebuiStatusConnected": "Connected · {{count}} models",
+    "openwebuiStatusUnreachable": "Not reachable",
+    "openwebuiHint": "Start Open WebUI and point the base URL at its OpenAI-compatible API (e.g. http://localhost:8080/api), with an API key if the instance requires auth.",
+    "openwebuiRefreshAria": "Refresh model list"
   },
   "code": {
     "approveButton": "Approve & Run",
