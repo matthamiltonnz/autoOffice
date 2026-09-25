@@ -43,6 +43,9 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
+    // Let the brand shrink so the action buttons are never clipped in narrow panes.
+    minWidth: 0,
+    overflow: 'hidden',
   },
   logo: {
     width: '24px',
@@ -52,6 +55,9 @@ const useStyles = makeStyles({
   title: {
     fontWeight: 600,
     fontSize: '16px',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
   messageList: {
     flex: 1,
@@ -180,7 +186,7 @@ export function ChatPanel({
           </Badge>
           <CostBadge cost={cost} providerId={providerId} />
         </div>
-        <div style={{ display: 'flex', gap: '4px' }}>
+        <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
           <Tooltip content={t('chat.historyTooltip')} relationship="label">
             <Button appearance="subtle" icon={<History24Regular />} onClick={onOpenHistory} disabled={isLoading} />
           </Tooltip>

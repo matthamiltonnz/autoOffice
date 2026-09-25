@@ -54,6 +54,13 @@ export function App({ host }: AppProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(loadSettings);
+
+  useEffect(() => {
+    // First run in a host (settings are stored per add-in): open Settings so the
+    // provider can be configured — the gear can be clipped in narrow panes.
+    if (!settings.selectedProviderId) setShowSettings(true);
+  }, [settings.selectedProviderId]);
+
   const [pendingApproval, setPendingApproval] = useState<string | null>(null);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [activeChatHost, setActiveChatHost] = useState<HostKind | null>(null);
