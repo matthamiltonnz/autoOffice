@@ -139,6 +139,22 @@ export function ChatPanel({
     host.kind === 'powerpoint' ? 'chat.hostNounPowerpoint' :
     'chat.hostNounOutlook',
   );
+  const headerRef = useRef<HTMLDivElement | null>(null);
+  const [compactHeader, setCompactHeader] = useState(false);
+
+  // Outlook/OWA panes can be very narrow: drop the badges instead of letting
+  // them be squashed and overlap the title.
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(entries => {
+      const width = entries[0]?.contentRect.width ?? 0;
+      setCompactHeader(width > 0 && width < 380);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -169,7 +185,7 @@ export function ChatPanel({
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
+      <div className={styles.header} ref={headerRef}>
         <div className={styles.brand}>
           <img
             src={`${import.meta.env.BASE_URL}assets/icon-64.png`}
@@ -177,14 +193,18 @@ export function ChatPanel({
             className={styles.logo}
           />
           <Text className={styles.title}>AutoOffice</Text>
-          <Badge
-            appearance="outline"
-            size="small"
-            color={host.kind === 'excel' ? 'success' : host.kind === 'powerpoint' ? 'danger' : host.kind === 'outlook' ? 'important' : 'brand'}
-          >
-            {host.displayName}
-          </Badge>
-          <CostBadge cost={cost} providerId={providerId} />
+          {!compactHeader && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+              <Badge
+                appearance="outline"
+                size="small"
+                color={host.kind === 'excel' ? 'success' : host.kind === 'powerpoint' ? 'danger' : host.kind === 'outlook' ? 'important' : 'brand'}
+              >
+                {host.displayName}
+              </Badge>
+              <CostBadge cost={cost} providerId={providerId} />
+            </span>
+          )}
         </div>
         <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
           <Tooltip content={t('chat.historyTooltip')} relationship="label">
