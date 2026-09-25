@@ -5,6 +5,7 @@ import { buildSystemPrompt } from './system-prompt.ts';
 import { listSkills } from '../skills/index.ts';
 import { translationService } from '../i18n/index.ts';
 import type { HostKind } from '../host/context.ts';
+import { describeOutlookCapabilities } from '../host/capabilities.ts';
 import type { AppSettings } from '../store/settings.ts';
 import type { Sandbox } from '../executor/sandbox.ts';
 import { getMcpTools } from '../mcp/client.ts';
@@ -165,7 +166,12 @@ export async function runAgent(
 
   let capturedStreamError: unknown;
 
-  const systemPrompt = buildSystemPrompt(host, listSkills(host), translationService.getLocale());
+  const systemPrompt = buildSystemPrompt(
+    host,
+    listSkills(host),
+    translationService.getLocale(),
+    host === 'outlook' ? describeOutlookCapabilities() : undefined,
+  );
   const result = streamText({
     model,
     system: systemPrompt,

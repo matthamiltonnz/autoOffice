@@ -55,3 +55,33 @@ describe('buildSystemPrompt — Outlook host', () => {
   });
 });
 
+
+describe('buildSystemPrompt — Outlook client capabilities', () => {
+  const capabilities = 'Client: OutlookWebApp 16.0.17830.4\nCurrent item: COMPOSE';
+
+  it('includes the capability report for the Outlook host', () => {
+    const prompt = buildSystemPrompt('outlook', ['message'], 'en', capabilities);
+
+    expect(prompt).toContain('Outlook client capabilities');
+    expect(prompt).toContain('Client: OutlookWebApp 16.0.17830.4');
+    expect(prompt).toContain('do not call an API that is marked unavailable');
+  });
+
+  it('leaves the capability block out when none is supplied', () => {
+    expect(buildSystemPrompt('outlook', ['message'], 'en')).not.toContain('Outlook client capabilities');
+  });
+
+  it('never injects Outlook capabilities into the other hosts', () => {
+    const prompt = buildSystemPrompt('word', ['document'], 'en', capabilities);
+
+    expect(prompt).not.toContain('Outlook client capabilities');
+    expect(prompt).not.toContain('OutlookWebApp');
+  });
+
+  it('tells the model to accept the report instead of probing', () => {
+    const prompt = buildSystemPrompt('outlook', ['message'], 'en', capabilities);
+
+    expect(prompt).toContain('authoritative — do not probe for any of this');
+  });
+});
+

@@ -6,6 +6,7 @@ export function buildSystemPrompt(
   host: HostKind,
   skills: readonly string[],
   locale: LocaleId,
+  capabilities?: string,
 ): string {
   const isOutlook = host === 'outlook';
   const hostName =
@@ -29,6 +30,7 @@ export function buildSystemPrompt(
     ? `- Mailbox APIs are callback based: wrap each ...Async call in a Promise and await it
 - Every Mailbox method name ends in Async (displayReplyFormAsync, body.getAsync, body.setAsync) — there is no displayReplyForm
 - NEVER probe the object model (no Object.getOwnPropertyNames, no typeof feature-sniffing) — call lookup_skill and use the documented methods
+- If the API you need is not available on this client (see the client capabilities below), do NOT guess another name and do NOT silently skip the step: use the fallback the skill documents and tell the user what you did
 - NEVER call load() or context.sync() — Outlook items have no proxy/load model
 - In read mode the item is read-only; write by opening a reply/forward form instead`
     : `- You MUST load() properties before reading them
@@ -52,6 +54,11 @@ ${insertEnumNote}`;
 - Skill documentation provided to you is in English; translate concepts into ${meta.nativeName} when explaining to the user.
 - Code identifiers (variable names, office.js API names) stay in English.`;
 
+  const capabilitiesClause =
+    isOutlook && capabilities
+      ? `\n\nOutlook client capabilities (authoritative — do not probe for any of this, and do not call an API that is marked unavailable):\n${capabilities}`
+      : '';
+
   return `You are AutoOffice, an AI assistant that controls ${hostName} by writing and executing office.js code.
 
 You have tools to look up API documentation and execute code.
@@ -59,7 +66,7 @@ You have tools to look up API documentation and execute code.
 Available skill topics for lookup_skill: ${skills.join(', ')}.
 
 CRITICAL RULES for office.js code:
-${batchRules}
+${batchRules}${capabilitiesClause}
 - NEVER use DOM manipulation — only the office.js API
 - Code runs in a sandbox with access to ${apiModelClause}
 
@@ -67,7 +74,7 @@ When the user asks you to do something with ${taskNoun}:
 1. ALWAYS call lookup_skill before writing code — it provides the correct API patterns, types, and examples for the relevant topic
 2. To read state, write execute_code that ${isOutlook ? 'reads' : 'loads'} and returns the needed properties
 3. Generate the code and call execute_code — always include a plain-language "summary" of what it will do: the user approves based on that sentence, not on the code
-4. If execution fails, analyze the error and try again (up to 3 attempts)
+4. If execution fails, analyze the error and try again (up to 3 attempts). If it keeps failing, or the API simply is not available on this client, say so plainly in your final answer: never describe a step as done when its execution returned an error, and never invent a success message. Give the user what they need instead (the draft text in the chat, the exact manual steps, the error)
 
 Your code can be ${codeShapeClause}.
 

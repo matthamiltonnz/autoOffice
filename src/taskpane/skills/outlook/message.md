@@ -59,3 +59,42 @@ const bodyHtml = await new Promise((resolve, reject) => {
 ## Return value tips
 
 Return a plain, serialisable object (not the Office proxies). Round long bodies: `body.slice(0, 4000) + '…'` so the conversation stays small.
+
+## Read mode: opening a reply with a draft
+
+Your instructions state whether the open item is **read** or **compose**, and
+which reply-form APIs this client has. Trust that — never probe the object
+model to find out.
+
+Drafting a reply from a **read** item (Mailbox 1.9):
+
+```js
+const item = Office.context.mailbox.item;
+const htmlBody = '<p>Hello,</p><p>Thank you for your message.</p>';
+const plainText = 'Hello,\n\nThank you for your message.';
+
+if (typeof item.displayReplyFormAsync !== 'function') {
+  // This client cannot open a reply form. Do NOT guess another API name:
+  // hand the draft to the user instead.
+  return 'This Outlook client cannot open a reply window. Draft:\n\n' + plainText;
+}
+
+await new Promise((resolve, reject) => {
+  item.displayReplyFormAsync({ htmlBody }, (result) => {
+    if (result.status === Office.AsyncResultStatus.Succeeded) resolve();
+    else reject(new Error(result.error?.message ?? 'displayReplyFormAsync failed'));
+  });
+});
+
+return 'Opened a reply window with the draft ready to review and send.';
+```
+
+- Same shape, Mailbox 1.9+: `displayReplyAllFormAsync`, and
+  `displayNewMessageFormAsync` (`{ htmlBody }` or `{ htmlBody, attachments }`).
+- The synchronous `displayReplyForm` / `displayReplyAllForm` are retired in
+  current clients — do not use them.
+- `displayReplyFormAsync` does **not** exist on a compose item, so if the item
+  is in compose mode use `body.setAsync` on the open draft instead.
+- If the call fails, never report success: say the reply window could not be
+  opened, paste the draft into the chat, and tell the user to click Reply.
+

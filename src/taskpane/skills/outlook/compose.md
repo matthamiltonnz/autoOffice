@@ -76,3 +76,29 @@ Office.context.mailbox.item.closeAsync();
 4. **`addFileAttachmentAsync` needs a URL the Exchange server can fetch**, not a `blob:` or `data:` URL.
 5. **Read-mode write attempts fail with `InvalidAccessError`** — switch to a reply form instead.
 6. **Await the callbacks** (wrap in a Promise) or the task pane will report success before the write lands.
+
+## Compose mode: writing into the draft that is already open
+
+If the user is composing or replying, the item is writable and no reply-form
+API is involved — `displayReplyFormAsync` does **not** exist here. Detect the
+mode from the capabilities line in your instructions, never by probing.
+
+```js
+const item = Office.context.mailbox.item;
+const html = '<p>Hello,</p><p>Thank you for your message.</p>';
+
+await new Promise((resolve, reject) => {
+  item.body.setAsync(html, { coercionType: Office.CoercionType.Html }, (result) => {
+    if (result.status === Office.AsyncResultStatus.Succeeded) resolve();
+    else reject(new Error(result.error?.message ?? 'body.setAsync failed'));
+  });
+});
+
+// subject.setAsync(...) only if the user asked for a subject.
+return 'Replaced the body of the open draft — review it and hit Send.';
+```
+
+Add recipients with `item.to.addAsync(...)` / `cc.addAsync(...)`, never
+`displayReplyFormAsync`. If an execution errors, report it plainly — do not
+claim the draft was written.
+
