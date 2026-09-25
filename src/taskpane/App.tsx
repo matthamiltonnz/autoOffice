@@ -61,7 +61,7 @@ export function App({ host }: AppProps) {
     if (!settings.selectedProviderId) setShowSettings(true);
   }, [settings.selectedProviderId]);
 
-  const [pendingApproval, setPendingApproval] = useState<string | null>(null);
+  const [pendingApproval, setPendingApproval] = useState<{ code: string; summary?: string } | null>(null);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [activeChatHost, setActiveChatHost] = useState<HostKind | null>(null);
   const [activeCost, setActiveCost] = useState<CallCost | undefined>(undefined);
@@ -236,8 +236,8 @@ export function App({ host }: AppProps) {
           return copy;
         });
       },
-      requestApproval: (code) => {
-        setPendingApproval(code);
+      requestApproval: (code, summary) => {
+        setPendingApproval({ code, summary });
         return new Promise<boolean>((resolve) => {
           approvalResolveRef.current = resolve;
         });

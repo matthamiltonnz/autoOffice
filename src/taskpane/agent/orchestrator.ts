@@ -20,6 +20,8 @@ export interface ChatMessage {
   codeBlock?: {
     toolCallId?: string;
     code: string;
+    /** Plain-language description shown to the user before the code. */
+    summary?: string;
     status: CodeBlockStatus;
     result?: string;
   };
@@ -39,9 +41,9 @@ export interface OrchestratorCallbacks {
    */
   onUpsertCodeBlock: (
     toolCallId: string,
-    patch: { code?: string; status?: CodeBlockStatus; result?: string },
+    patch: { code?: string; summary?: string; status?: CodeBlockStatus; result?: string },
   ) => void;
-  requestApproval: (code: string) => Promise<boolean>;
+  requestApproval: (code: string, summary?: string) => Promise<boolean>;
   /**
    * Emitted once per runAgent call after the stream settles, with the
    * summed cost across all steps. Optional so that existing callsites
@@ -86,26 +88,31 @@ export async function runAgent(
           'or just the inner body (the executor wraps it automatically). ') +
       'Always use proper load() and context.sync() patterns. ' +
       'If you are unsure about the correct API, call lookup_skill first to get the right patterns and examples.',
-    inputSchema: jsonSchema<{ code: string }>({
+    inputSchema: jsonSchema<{ code: string; summary: string }>({
       type: 'object',
       properties: {
         code: { type: 'string', description: 'The office.js code to execute' },
+        summary: {
+          type: 'string',
+          description:
+            "One short sentence in the user's language saying what this code will do to their document, email or presentation — this is what the user reads when approving, so no API names, no variable names.",
+        },
       },
-      required: ['code'],
+      required: ['code', 'summary'],
       additionalProperties: false,
     }),
-    execute: async ({ code }, { toolCallId }) => {
+    execute: async ({ code, summary }, { toolCallId }) => {
       try {
         if (!settings.autoApprove) {
-          callbacks.onUpsertCodeBlock(toolCallId, { code, status: 'pending' });
+          callbacks.onUpsertCodeBlock(toolCallId, { code, summary, status: 'pending' });
         }
-        const approved = settings.autoApprove || await callbacks.requestApproval(code);
+        const approved = settings.autoApprove || await callbacks.requestApproval(code, summary);
         if (!approved) {
           callbacks.onUpsertCodeBlock(toolCallId, { code, status: 'rejected' });
           return 'User rejected the code. Ask what they would like changed.';
         }
 
-        callbacks.onUpsertCodeBlock(toolCallId, { code, status: 'running' });
+        callbacks.onUpsertCodeBlock(toolCallId, { code, summary, status: 'running' });
 
         const result = await sandbox.execute(code, settings.executionTimeout);
         const logsStr = result.logs && result.logs.length ? `\nLogs:\n${result.logs.join('\n')}` : '';

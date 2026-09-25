@@ -27,6 +27,8 @@ export function buildSystemPrompt(
 
   const batchRules = isOutlook
     ? `- Mailbox APIs are callback based: wrap each ...Async call in a Promise and await it
+- Every Mailbox method name ends in Async (displayReplyFormAsync, body.getAsync, body.setAsync) — there is no displayReplyForm
+- NEVER probe the object model (no Object.getOwnPropertyNames, no typeof feature-sniffing) — call lookup_skill and use the documented methods
 - NEVER call load() or context.sync() — Outlook items have no proxy/load model
 - In read mode the item is read-only; write by opening a reply/forward form instead`
     : `- You MUST load() properties before reading them
@@ -64,7 +66,7 @@ ${batchRules}
 When the user asks you to do something with ${taskNoun}:
 1. ALWAYS call lookup_skill before writing code — it provides the correct API patterns, types, and examples for the relevant topic
 2. To read state, write execute_code that ${isOutlook ? 'reads' : 'loads'} and returns the needed properties
-3. Generate the code and call execute_code
+3. Generate the code and call execute_code — always include a plain-language "summary" of what it will do: the user approves based on that sentence, not on the code
 4. If execution fails, analyze the error and try again (up to 3 attempts)
 
 Your code can be ${codeShapeClause}.

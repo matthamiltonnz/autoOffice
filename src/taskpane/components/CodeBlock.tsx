@@ -111,13 +111,15 @@ const STATUS_COLORS: Record<CodeStatus, 'informative' | 'success' | 'danger' | '
 
 interface CodeBlockProps {
   code: string;
+  /** Plain-language description of what the code does, shown before the code. */
+  summary?: string;
   status: CodeStatus;
   result?: string;
   onApprove?: () => void;
   onReject?: () => void;
 }
 
-export function CodeBlock({ code, status, result, onApprove, onReject }: CodeBlockProps) {
+export function CodeBlock({ code, summary, status, result, onApprove, onReject }: CodeBlockProps) {
   const styles = useStyles();
   const { t } = useTranslation();
   const STATUS_LABELS = {
@@ -139,6 +141,12 @@ export function CodeBlock({ code, status, result, onApprove, onReject }: CodeBlo
           {STATUS_LABELS[status]}
         </Badge>
       </div>
+
+      {summary && (
+        <Text size={300} weight="semibold" style={{ display: 'block', padding: '8px 12px 0' }}>
+          {summary}
+        </Text>
+      )}
 
       <div className={styles.codeArea}>
         <pre className={styles.code}>

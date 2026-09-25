@@ -107,7 +107,7 @@ interface ChatPanelProps {
   host: HostContext;
   messages: ChatMessage[];
   isLoading: boolean;
-  pendingApproval: string | null;
+  pendingApproval: { code: string; summary?: string } | null;
   /** Host of the currently-loaded conversation; null = no active conversation. */
   activeChatHost: HostKind | null;
   /** Running total cost for the active conversation. */
@@ -229,7 +229,8 @@ export function ChatPanel({
       {pendingApproval && (
         <div className={styles.approvalArea}>
           <CodeBlock
-            code={pendingApproval}
+            code={pendingApproval.code}
+            summary={pendingApproval.summary}
             status="pending"
             onApprove={() => onApprove(true)}
             onReject={() => onApprove(false)}

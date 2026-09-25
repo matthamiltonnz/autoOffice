@@ -45,5 +45,13 @@ describe('buildSystemPrompt — Outlook host', () => {
   it('lists the Outlook skill topics passed in', () => {
     expect(prompt).toContain('message, compose');
   });
+
+  it('asks for a plain-language summary with every execution', () => {
+    expect(prompt).toContain('plain-language "summary"');
+  });
+
+  it('warns against probing the object model', () => {
+    expect(prompt).toContain('NEVER probe the object model');
+  });
 });
 
