@@ -67,6 +67,8 @@
   "code": {
     "approveButton": "Approve & Run",
     "rejectButton": "Reject",
+    "showCode": "Show code",
+    "hideCode": "Hide code",
     "statusStreaming": "Generating…",
     "statusPending": "Awaiting Approval",
     "statusRejected": "Rejected",

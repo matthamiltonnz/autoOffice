@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles, tokens, Button, Badge, Text } from '@fluentui/react-components';
 import {
   DismissCircle24Regular,
@@ -77,6 +77,14 @@ const useStyles = makeStyles({
       backgroundColor: tokens.colorNeutralBackground4Hover,
     },
   },
+  codeToggle: {
+    display: 'block',
+    width: '100%',
+    border: 'none',
+    background: 'none',
+    textAlign: 'left',
+    font: 'inherit',
+  },
   summaryError: {
     color: tokens.colorPaletteRedForeground1,
     '&:hover': {
@@ -122,6 +130,11 @@ interface CodeBlockProps {
 export function CodeBlock({ code, summary, status, result, onApprove, onReject }: CodeBlockProps) {
   const styles = useStyles();
   const { t } = useTranslation();
+  // The code is the detail behind the summary. With a summary present there is
+  // something readable to approve on, so keep the code collapsed; blocks from
+  // older runs have no summary, so those still show their code.
+  const [showCode, setShowCode] = useState(false);
+  const hasSummary = Boolean(summary);
   const STATUS_LABELS = {
     streaming: t('code.statusStreaming'),
     pending:   t('code.statusPending'),
@@ -148,14 +161,27 @@ export function CodeBlock({ code, summary, status, result, onApprove, onReject }
         </Text>
       )}
 
-      <div className={styles.codeArea}>
-        <pre className={styles.code}>
-          {code === '' && status === 'streaming'
-            ? <span className={styles.emptyHint}>{t('code.generatingCode')}</span>
-            : code}
-          {status === 'streaming' && <span className={styles.caret} aria-hidden />}
-        </pre>
-      </div>
+      {hasSummary && (
+        <button
+          type="button"
+          className={`${styles.summary} ${styles.codeToggle}`}
+          aria-expanded={showCode}
+          onClick={() => setShowCode((visible) => !visible)}
+        >
+          {showCode ? t('code.hideCode') : t('code.showCode')}
+        </button>
+      )}
+
+      {(showCode || !hasSummary) && (
+        <div className={styles.codeArea}>
+          <pre className={styles.code}>
+            {code === '' && status === 'streaming'
+              ? <span className={styles.emptyHint}>{t('code.generatingCode')}</span>
+              : code}
+            {status === 'streaming' && <span className={styles.caret} aria-hidden />}
+          </pre>
+        </div>
+      )}
 
       {status === 'pending' && onApprove && onReject && (
         <div className={styles.actions}>

@@ -68,6 +68,7 @@ Available skill topics for lookup_skill: ${skills.join(', ')}.
 CRITICAL RULES for office.js code:
 ${batchRules}${capabilitiesClause}
 - NEVER use DOM manipulation — only the office.js API
+- Keep the code as short as the task allows: inline the work instead of writing helper functions that are called once, and skip defensive scaffolding the task does not need (the user reviews this code, so every unnecessary line is noise)
 - Code runs in a sandbox with access to ${apiModelClause}
 
 When the user asks you to do something with ${taskNoun}:

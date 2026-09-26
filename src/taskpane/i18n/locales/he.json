@@ -67,6 +67,8 @@
   "code": {
     "approveButton": "אישור והרצה",
     "rejectButton": "דחייה",
+    "showCode": "הצגת הקוד",
+    "hideCode": "הסתרת הקוד",
     "statusStreaming": "יוצר...",
     "statusPending": "ממתין לאישור",
     "statusRejected": "נדחה",
