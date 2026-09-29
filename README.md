@@ -161,9 +161,9 @@ npm run sideload:outlook:mac
 npm run start:outlook
 ```
 
-Then in Outlook: **Home → Add-ins → AutoOffice**. In Outlook on the web: **Get Add-ins → My add-ins → Add a custom add-in → Add from file**, uploading `manifest.outlook.xml` (or `manifest.outlook.production.xml` for a hosted build — edit its URLs to your Pages domain first, exactly as described above).
+Then in Outlook: **Home → Add-ins → AutoOffice**. In Outlook on the web, open **<https://aka.ms/olksideload>** — the *Add-Ins for Outlook* dialog opens directly — then **My add-ins → Custom Addins → Add a custom add-in → Add from File**. `Add from URL` is no longer supported for Outlook. On Outlook for Mac 16.85+ the ribbon **Get Add-ins** button opens the Microsoft Marketplace in the browser instead of this dialog, so use the URL rather than hunting for the button. Upload `manifest.outlook.xml` (or `manifest.outlook.production.xml` for a hosted build — edit its URLs to your Pages domain first, exactly as described above).
 
-Capabilities and limits: the manifest requests **Mailbox 1.3** and **ReadWriteItem**, so the agent can read the open message or meeting (subject, sender, recipients, body, attachment metadata) and write drafts (body, subject, recipients, reply/forward forms, attachments). Reading other messages or folders would need `ReadWriteMailbox` plus EWS/REST, which is deliberately out of scope.
+Surfaces: the manifest declares both `MessageReadCommandSurface` and `MessageComposeCommandSurface`, each with a matching form in `FormSettings` (`ItemRead` and `ItemEdit`). Both are needed — a compose surface whose `ItemEdit` form is missing opens to a blank pane with no error. Capabilities and limits: the manifest requests **Mailbox 1.3** and **ReadWriteItem**, so the agent can read the open message or meeting (subject, sender, recipients, body, attachment metadata) and write drafts (body, subject, recipients, reply/forward forms, attachments). Reading other messages or folders would need `ReadWriteMailbox` plus EWS/REST, which is deliberately out of scope.
 
 
 ### Run dev server only
