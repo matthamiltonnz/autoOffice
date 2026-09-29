@@ -8,6 +8,11 @@
   taskpaneappversionoverrides. Same web app (https://localhost:3721), separate
   registration.
 
+  The prefix is bound to the /1.1 namespace, not the v1.0 one: a MailApp
+  manifest that carries a <VersionOverrides> element must declare
+  mailappversionoverrides/1.1. With the v1.0 namespace Outlook rejects the
+  manifest and the add-in silently never appears — no error is shown.
+
   Sideload: copy this file into Word/Outlook's wef folder:
     ~/Library/Containers/com.microsoft.Outlook/Data/Documents/wef/
   then restart Outlook and pick Home > Add-ins > AutoOffice (or, in Outlook on
@@ -17,17 +22,17 @@
   xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
-  xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides"
+  xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.1"
   xsi:type="MailApp">
-  <Id>72dfce26-610e-474e-a855-2e9809b7a82c</Id>
+  <Id>240c15b9-9d21-46e3-97c8-db86bf8cd3a5</Id>
   <Version>1.0.0.0</Version>
   <ProviderName>AutoOffice</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="AutoOffice" />
   <Description DefaultValue="AI-powered dynamic code execution add-in for Microsoft Outlook" />
-  <IconUrl DefaultValue="https://sivan22.github.io/autoOffice/assets/icon-32.png" />
-  <HighResolutionIconUrl DefaultValue="https://sivan22.github.io/autoOffice/assets/icon-64.png" />
-  <SupportUrl DefaultValue="https://localhost:3721" />
+  <IconUrl DefaultValue="https://matthamiltonnz.github.io/autoOffice/assets/icon-32.png" />
+  <HighResolutionIconUrl DefaultValue="https://matthamiltonnz.github.io/autoOffice/assets/icon-64.png" />
+  <SupportUrl DefaultValue="https://github.com/matthamiltonnz/autoOffice" />
   <Hosts>
     <Host Name="Mailbox" />
   </Hosts>
@@ -39,7 +44,7 @@
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
-        <SourceLocation DefaultValue="https://sivan22.github.io/autoOffice/" />
+        <SourceLocation DefaultValue="https://matthamiltonnz.github.io/autoOffice/" />
         <RequestedHeight>450</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -107,12 +112,12 @@
     </Hosts>
     <Resources>
       <bt:Images>
-        <bt:Image id="icon.16x16" DefaultValue="https://sivan22.github.io/autoOffice/assets/icon-16.png" />
-        <bt:Image id="icon.32x32" DefaultValue="https://sivan22.github.io/autoOffice/assets/icon-32.png" />
-        <bt:Image id="icon.80x80" DefaultValue="https://sivan22.github.io/autoOffice/assets/icon-80.png" />
+        <bt:Image id="icon.16x16" DefaultValue="https://matthamiltonnz.github.io/autoOffice/assets/icon-16.png" />
+        <bt:Image id="icon.32x32" DefaultValue="https://matthamiltonnz.github.io/autoOffice/assets/icon-32.png" />
+        <bt:Image id="icon.80x80" DefaultValue="https://matthamiltonnz.github.io/autoOffice/assets/icon-80.png" />
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="taskpane.Url" DefaultValue="https://sivan22.github.io/autoOffice/" />
+        <bt:Url id="taskpane.Url" DefaultValue="https://matthamiltonnz.github.io/autoOffice/" />
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="group.Label" DefaultValue="AutoOffice" />

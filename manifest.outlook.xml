@@ -8,6 +8,11 @@
   taskpaneappversionoverrides. Same web app (https://localhost:3721), separate
   registration.
 
+  The prefix is bound to the /1.1 namespace, not the v1.0 one: a MailApp
+  manifest that carries a <VersionOverrides> element must declare
+  mailappversionoverrides/1.1. With the v1.0 namespace Outlook rejects the
+  manifest and the add-in silently never appears — no error is shown.
+
   Sideload: copy this file into Word/Outlook's wef folder:
     ~/Library/Containers/com.microsoft.Outlook/Data/Documents/wef/
   then restart Outlook and pick Home > Add-ins > AutoOffice (or, in Outlook on
@@ -17,7 +22,7 @@
   xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
-  xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides"
+  xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.1"
   xsi:type="MailApp">
   <Id>72dfce26-610e-474e-a855-2e9809b7a82c</Id>
   <Version>1.0.0.0</Version>
