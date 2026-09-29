@@ -4,7 +4,7 @@
 
 <h1 align="center">AutoOffice</h1>
 
-<p align="center">AI-powered Microsoft Word + Excel + PowerPoint add-in that writes and executes real <code>office.js</code> code on demand.</p>
+<p align="center">AI-powered Microsoft Word + Excel + PowerPoint + Outlook add-in that writes and executes real <code>office.js</code> code on demand.</p>
 
 ## What It Does
 
@@ -50,21 +50,44 @@ There is no curated wrapper API. The agent has exactly two built-in tools: look 
 
 Prebuilt Windows installer — no Node, no source build, no dev cert.
 
-1. Download **AutoOffice-Setup.exe** from the [latest release](https://github.com/Sivan22/autoOffice/releases/latest) and run it.
+1. Download **AutoOffice-Setup.exe** from the [latest release](https://github.com/matthamiltonnz/autoOffice/releases/latest) and run it.
 2. If Windows shows **"Windows protected your PC"**, click **More info → Run anyway** (the installer is unsigned).
 3. Restart Word (or Excel / PowerPoint).
 4. In Word: **Home → Add-ins → Advanced → Shared Folder**, pick **AutoOffice**, and click **Add**.
 
-The installer just registers an Office add-in manifest. The task-pane assets themselves are served from **my** GitHub Pages site at `https://sivan22.github.io/autoOffice/`, which means you're loading code I deploy. If you'd rather not depend on that, host it yourself — see below.
+The installer just registers an Office add-in manifest. The task-pane assets are served from this fork's GitHub Pages site at `https://matthamiltonnz.github.io/autoOffice/`, so it runs entirely on its own hosting and loads no code from upstream — see the self-hosting notes below.
 
-### Self-host on your own GitHub Pages
+### Self-hosting
 
-1. **Fork** `Sivan22/autoOffice` on GitHub.
-2. In your fork: **Settings → Pages → Source: GitHub Actions**.
-3. If your fork's repo name isn't `autoOffice`, edit `.github/workflows/deploy.yml` and change `VITE_BASE: /autoOffice/` to `/<your-repo-name>/`.
-4. Push to `master` (or run **Deploy to GitHub Pages** manually). Your add-in will be served at `https://<your-username>.github.io/<your-repo-name>/`.
-5. Edit `manifest.production.xml`: replace every `https://sivan22.github.io/autoOffice/` with your fork's Pages URL, and change the `<Id>` GUID to a fresh one so it doesn't collide with the upstream add-in.
-6. Either rebuild the installer (`installer/setup.iss` via Inno Setup) so it ships your edited manifest, or sideload `manifest.production.xml` directly via **Insert → Add-ins → Upload My Add-in**.
+This fork is self-hosted on GitHub Pages, so it serves no code from upstream:
+
+- **Task-pane assets:** `https://matthamiltonnz.github.io/autoOffice/`
+- **Repo:** `https://github.com/matthamiltonnz/autoOffice`
+
+`deploy.yml` keeps `VITE_BASE: /autoOffice/` because the repo is named `autoOffice` —
+that stays correct as long as the repo name doesn't change.
+
+To set this up from scratch (or on a fresh fork):
+
+1. **Create the repo**, e.g. `matthamiltonnz/autoOffice`. It must be **public** —
+   GitHub Pages on the free plan does not serve private repositories.
+2. In the repo: **Settings → Pages → Source: GitHub Actions**.
+3. If the repo is **not** named `autoOffice`, edit `.github/workflows/deploy.yml` and change
+   `VITE_BASE: /autoOffice/` to `/<your-repo-name>/`.
+4. Push to `master` (or run **Deploy to GitHub Pages** manually). Assets are served at
+   `https://matthamiltonnz.github.io/autoOffice/`.
+5. Confirm the URLs in **both** production manifests match that origin — `manifest.production.xml`
+   (Word/Excel/PowerPoint) and `manifest.outlook.production.xml` (Outlook). Each carries its own
+   `<Id>` GUID; keep them distinct from upstream's so both add-ins can coexist on one machine.
+6. Register the add-in for users, either by:
+   - rebuilding the installer (`installer/setup.iss` via Inno Setup) so it ships the edited
+     `manifest.production.xml`, or
+   - sideloading the manifest directly: **Insert → Add-ins → Upload My Add-in** (desktop),
+     or copying it into Outlook's `wef` folder on macOS:
+     `~/Library/Containers/com.microsoft.Outlook/Data/Documents/wef/`.
+
+Because Pages serves static files, **nothing needs to stay running** — no server, no container,
+and no dev machine that has to be switched on.
 
 ## Development
 
@@ -122,6 +145,27 @@ npm run start:powerpoint       # debugger
 npm run sideload:powerpoint    # no debugger
 ```
 
+### Run + sideload Outlook
+
+Outlook needs its own manifest — `manifest.outlook.xml` — because an add-in manifest can contain only one `<VersionOverrides>` element, and the Mailbox host uses the `mailappversionoverrides` namespace while Word/Excel/PowerPoint use `taskpaneappversionoverrides`. Both manifests point at the same web app.
+
+**macOS** — sideload into Outlook's `wef` folder, then restart Outlook:
+
+```bash
+npm run sideload:outlook:mac
+```
+
+**Windows** — Office debugging tooling:
+
+```bash
+npm run start:outlook
+```
+
+Then in Outlook: **Home → Add-ins → AutoOffice**. In Outlook on the web: **Get Add-ins → My add-ins → Add a custom add-in → Add from file**, uploading `manifest.outlook.xml` (or `manifest.outlook.production.xml` for a hosted build — edit its URLs to your Pages domain first, exactly as described above).
+
+Capabilities and limits: the manifest requests **Mailbox 1.3** and **ReadWriteItem**, so the agent can read the open message or meeting (subject, sender, recipients, body, attachment metadata) and write drafts (body, subject, recipients, reply/forward forms, attachments). Reading other messages or folders would need `ReadWriteMailbox` plus EWS/REST, which is deliberately out of scope.
+
+
 ### Run dev server only
 
 ```bash
@@ -146,9 +190,10 @@ npm run stop
 
 Open the add-in task pane and click the settings gear:
 
-- **Provider:** Anthropic, OpenAI, or any OpenAI-compatible endpoint (Ollama, LM Studio, etc.)
+- **Provider:** Anthropic, OpenAI, or any OpenAI-compatible endpoint (Ollama, LM Studio, Open WebUI, etc.)
+- **Base URL:** for self-hosted providers — `http://localhost:1234/v1` for LM Studio, `http://localhost:8080/api` for Open WebUI
 - **API Key:** stored locally, never sent anywhere except directly to the provider
-- **Model:** e.g. `claude-opus-4-7`, `gpt-4o`
+- **Model:** e.g. `claude-opus-4-7`, `gpt-4o` — for LM Studio and Open WebUI the list is fetched from the server, so you pick it from a dropdown
 - **Auto-approve:** skip the approve step and run code immediately
 - **MCP Servers:** add HTTP/SSE MCP servers to extend the agent with external tools
 

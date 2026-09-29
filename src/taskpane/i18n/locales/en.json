@@ -11,6 +11,7 @@
   "chat": {
     "welcomeTitle": "Welcome to AutoOffice",
     "welcomeMessage": "Ask me to do anything with your {{host}} {{noun}}. I'll write and run office.js code to make it happen.",
+    "exampleOutlook": "Try: \"Summarise this email\" or \"Draft a reply\"",
     "exampleWord": "Try: \"Make all headings blue\" or \"Insert a 3-column table\"",
     "exampleExcel": "Try: \"Put 1 through 10 in column A\" or \"Make a chart from B2:D8\"",
     "examplePowerpoint": "Try: \"Add a slide titled 'Q3 plan' with three bullets\" or \"Make all slide titles bold\"",
@@ -19,9 +20,11 @@
     "settingsTooltip": "Settings",
     "historyTooltip": "History",
     "newChatTooltip": "New chat",
+    "hostOutlook": "Outlook",
     "hostWord": "Word",
     "hostExcel": "Excel",
     "hostPowerpoint": "PowerPoint",
+    "hostNounOutlook": "email",
     "hostNounWord": "document",
     "hostNounExcel": "workbook",
     "hostNounPowerpoint": "presentation"
@@ -54,11 +57,18 @@
     "lmstudioStatusConnected": "Connected · {{count}} models",
     "lmstudioStatusUnreachable": "Not running",
     "lmstudioCorsHint": "Open LM Studio → Developer → enable CORS, or run \"lms server start --cors\" in a terminal.",
-    "lmstudioRefreshAria": "Refresh model list"
+    "lmstudioRefreshAria": "Refresh model list",
+    "openwebuiStatusChecking": "Checking…",
+    "openwebuiStatusConnected": "Connected · {{count}} models",
+    "openwebuiStatusUnreachable": "Not reachable",
+    "openwebuiHint": "Start Open WebUI and point the base URL at its OpenAI-compatible API (e.g. http://localhost:8080/api), with an API key if the instance requires auth.",
+    "openwebuiRefreshAria": "Refresh model list"
   },
   "code": {
     "approveButton": "Approve & Run",
     "rejectButton": "Reject",
+    "showCode": "Show code",
+    "hideCode": "Hide code",
     "statusStreaming": "Generating…",
     "statusPending": "Awaiting Approval",
     "statusRejected": "Rejected",
@@ -92,6 +102,7 @@
     "closeAria": "Close",
     "filterCurrent": "Current host",
     "filterAll": "All",
+    "filterOutlook": "Outlook",
     "filterWord": "Word",
     "filterExcel": "Excel",
     "filterPowerpoint": "PowerPoint",

@@ -23,7 +23,11 @@ export default defineConfig({
     react(),
     viteStaticCopy({
       targets: [
-        { src: 'src/taskpane/executor/iframe.html', dest: '.' },
+        // Lands at dist/iframe.html. `stripBase: true` is required: with a glob
+        // entry the plugin otherwise preserves the matched file's directory
+        // structure under `dest`, which buries the file at
+        // dist/src/taskpane/executor/iframe.html — a 404 at runtime.
+        { src: 'src/taskpane/executor/iframe.html', dest: '.', rename: { stripBase: true } },
       ],
     }),
     {

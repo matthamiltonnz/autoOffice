@@ -1,4 +1,4 @@
-export type HostKind = 'word' | 'excel' | 'powerpoint';
+export type HostKind = 'word' | 'excel' | 'powerpoint' | 'outlook';
 
 export interface HostContext {
   kind: HostKind;
@@ -25,6 +25,8 @@ export function detectHost(): HostContext {
       return { kind: 'excel', displayName: 'Excel' };
     case Office.HostType.PowerPoint:
       return { kind: 'powerpoint', displayName: 'PowerPoint' };
+    case Office.HostType.Outlook:
+      return { kind: 'outlook', displayName: 'Outlook' };
     default:
       throw new UnsupportedHostError(String(Office.context.host));
   }

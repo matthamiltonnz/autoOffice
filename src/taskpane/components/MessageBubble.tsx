@@ -57,6 +57,7 @@ export function MessageBubble({ message }: { message: ChatMessage }) {
       <div className={styles.container}>
         <CodeBlock
           code={message.codeBlock.code}
+          summary={message.codeBlock.summary}
           status={message.codeBlock.status}
           result={message.codeBlock.result}
         />

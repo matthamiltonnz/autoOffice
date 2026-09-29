@@ -24,8 +24,9 @@ import {
 } from '@fluentui/react-icons';
 import type { AppSettings, McpServerConfig } from '../store/settings.ts';
 import { LOCAL_PROVIDER_IDS } from '../store/settings.ts';
-import { useTranslation, availableLocales, type LocaleId } from '../i18n/index.ts';
-import { discoverLmStudioModels, type LmStudioModel, type LmStudioStatus } from '../agent/lmstudio.ts';
+import { useTranslation, availableLocales, type LocaleId, type TranslationKey } from '../i18n/index.ts';
+import { discoverLmStudioModels } from '../agent/lmstudio.ts';
+import { DEFAULT_OPENWEBUI_BASE_URL, discoverOpenWebUiModels } from '../agent/openwebui.ts';
 
 const useStyles = makeStyles({
   container: {
@@ -135,10 +136,50 @@ const PROVIDER_MODELS: Record<string, string[]> = {
   openrouter: [],
   ollama: [],
   lmstudio: [],
+  openwebui: [],
   'openai-compatible': [],
 };
 
-const PROVIDERS_WITH_BASE_URL = new Set(['openai-compatible', 'openrouter', 'ollama', 'lmstudio']);
+const PROVIDERS_WITH_BASE_URL = new Set(['openai-compatible', 'openrouter', 'ollama', 'lmstudio', 'openwebui']);
+
+/** Providers whose model list is discovered from the server they point at. */
+const PROVIDERS_WITH_MODEL_DISCOVERY = new Set(['lmstudio', 'openwebui']);
+
+const DEFAULT_DISCOVERY_BASE_URLS: Record<string, string> = {
+  lmstudio: 'http://localhost:1234/v1',
+  openwebui: DEFAULT_OPENWEBUI_BASE_URL,
+};
+
+/** Self-hosted providers where an API key is optional but still accepted. */
+const PROVIDERS_WITH_OPTIONAL_API_KEY = new Set(['openwebui']);
+
+interface DiscoveredModel {
+  id: string;
+  displayName?: string;
+  state?: 'loaded' | 'not-loaded';
+}
+
+interface DiscoveredModelList {
+  status: 'idle' | 'connecting' | 'connected' | 'unreachable';
+  models: DiscoveredModel[];
+  error?: string;
+}
+
+interface ModelDiscoveryOptions {
+  signal?: AbortSignal;
+  force?: boolean;
+  apiKey?: string;
+}
+
+function discoverProviderModels(
+  providerId: string,
+  baseUrl: string,
+  opts: ModelDiscoveryOptions
+): Promise<DiscoveredModelList> {
+  return providerId === 'openwebui'
+    ? discoverOpenWebUiModels(baseUrl, opts)
+    : discoverLmStudioModels(baseUrl, opts);
+}
 
 export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProps) {
   const styles = useStyles();
@@ -205,7 +246,8 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
 
           {selectedProvider && (
             <>
-              {!LOCAL_PROVIDER_IDS.has(selectedProvider.id) && (
+              {(!LOCAL_PROVIDER_IDS.has(selectedProvider.id) ||
+                PROVIDERS_WITH_OPTIONAL_API_KEY.has(selectedProvider.id)) && (
                 <Field label={t('settings.apiKeyLabel')}>
                   <div className={styles.row}>
                     <Input
@@ -234,9 +276,11 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
                 </Field>
               )}
 
-              {selectedProvider.id === 'lmstudio' ? (
-                <LmStudioModelPicker
-                  baseUrl={selectedProvider.baseUrl || 'http://localhost:1234/v1'}
+              {PROVIDERS_WITH_MODEL_DISCOVERY.has(selectedProvider.id) ? (
+                <ServerModelPicker
+                  providerId={selectedProvider.id}
+                  baseUrl={selectedProvider.baseUrl || DEFAULT_DISCOVERY_BASE_URLS[selectedProvider.id] || ''}
+                  apiKey={selectedProvider.apiKey}
                   selectedModel={settings.selectedModel}
                   onModelChange={model => onChange({ ...settings, selectedModel: model })}
                 />
@@ -373,17 +417,46 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
   );
 }
 
-interface LmStudioModelPickerProps {
+interface ServerModelPickerProps {
+  providerId: string;
   baseUrl: string;
+  apiKey?: string;
   selectedModel: string;
   onModelChange: (model: string) => void;
 }
 
-function LmStudioModelPicker({ baseUrl, selectedModel, onModelChange }: LmStudioModelPickerProps) {
+interface DiscoveryStatusKeys {
+  checking: TranslationKey;
+  connected: TranslationKey;
+  unreachable: TranslationKey;
+  hint: TranslationKey;
+  refreshAria: TranslationKey;
+}
+
+/** Status strings differ per provider so each hint can name the right server. */
+const DISCOVERY_STATUS_KEYS: Record<string, DiscoveryStatusKeys> = {
+  lmstudio: {
+    checking: 'settings.lmstudioStatusChecking',
+    connected: 'settings.lmstudioStatusConnected',
+    unreachable: 'settings.lmstudioStatusUnreachable',
+    hint: 'settings.lmstudioCorsHint',
+    refreshAria: 'settings.lmstudioRefreshAria',
+  },
+  openwebui: {
+    checking: 'settings.openwebuiStatusChecking',
+    connected: 'settings.openwebuiStatusConnected',
+    unreachable: 'settings.openwebuiStatusUnreachable',
+    hint: 'settings.openwebuiHint',
+    refreshAria: 'settings.openwebuiRefreshAria',
+  },
+};
+
+function ServerModelPicker({ providerId, baseUrl, apiKey, selectedModel, onModelChange }: ServerModelPickerProps) {
   const styles = useStyles();
   const { t } = useTranslation();
-  const [status, setStatus] = useState<LmStudioStatus>('connecting');
-  const [models, setModels] = useState<LmStudioModel[]>([]);
+  const statusKeys = DISCOVERY_STATUS_KEYS[providerId] ?? DISCOVERY_STATUS_KEYS.lmstudio;
+  const [status, setStatus] = useState<DiscoveredModelList['status']>('connecting');
+  const [models, setModels] = useState<DiscoveredModel[]>([]);
   const abortRef = useRef<AbortController | null>(null);
 
   const runDiscovery = useCallback((force: boolean) => {
@@ -391,7 +464,7 @@ function LmStudioModelPicker({ baseUrl, selectedModel, onModelChange }: LmStudio
     const ctrl = new AbortController();
     abortRef.current = ctrl;
     setStatus('connecting');
-    discoverLmStudioModels(baseUrl, { signal: ctrl.signal, force })
+    discoverProviderModels(providerId, baseUrl, { signal: ctrl.signal, force, apiKey })
       .then(result => {
         if (ctrl.signal.aborted) return;
         setStatus(result.status);
@@ -403,7 +476,7 @@ function LmStudioModelPicker({ baseUrl, selectedModel, onModelChange }: LmStudio
         setStatus('unreachable');
         setModels([]);
       });
-  }, [baseUrl]);
+  }, [baseUrl, apiKey, providerId]);
 
   // Debounced auto-discovery on mount and baseUrl change.
   useEffect(() => {
@@ -424,18 +497,18 @@ function LmStudioModelPicker({ baseUrl, selectedModel, onModelChange }: LmStudio
           {status === 'connecting' && (
             <>
               <Spinner size="extra-tiny" />
-              <Text size={200}>{t('settings.lmstudioStatusChecking')}</Text>
+              <Text size={200}>{t(statusKeys.checking)}</Text>
             </>
           )}
           {status === 'connected' && (
             <Badge appearance="outline" size="small" color="success">
-              {t('settings.lmstudioStatusConnected', { count: models.length })}
+              {t(statusKeys.connected, { count: models.length })}
             </Badge>
           )}
           {status === 'unreachable' && (
-            <Tooltip content={t('settings.lmstudioCorsHint')} relationship="description">
+            <Tooltip content={t(statusKeys.hint)} relationship="description">
               <Badge appearance="outline" size="small" color="danger">
-                {t('settings.lmstudioStatusUnreachable')}
+                {t(statusKeys.unreachable)}
               </Badge>
             </Tooltip>
           )}
@@ -444,7 +517,7 @@ function LmStudioModelPicker({ baseUrl, selectedModel, onModelChange }: LmStudio
             size="small"
             icon={<ArrowClockwise24Regular />}
             onClick={() => runDiscovery(true)}
-            aria-label={t('settings.lmstudioRefreshAria')}
+            aria-label={t(statusKeys.refreshAria)}
           />
         </div>
       }

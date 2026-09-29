@@ -43,6 +43,9 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
+    // Let the brand shrink so the action buttons are never clipped in narrow panes.
+    minWidth: 0,
+    overflow: 'hidden',
   },
   logo: {
     width: '24px',
@@ -52,6 +55,9 @@ const useStyles = makeStyles({
   title: {
     fontWeight: 600,
     fontSize: '16px',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
   messageList: {
     flex: 1,
@@ -101,7 +107,7 @@ interface ChatPanelProps {
   host: HostContext;
   messages: ChatMessage[];
   isLoading: boolean;
-  pendingApproval: string | null;
+  pendingApproval: { code: string; summary?: string } | null;
   /** Host of the currently-loaded conversation; null = no active conversation. */
   activeChatHost: HostKind | null;
   /** Running total cost for the active conversation. */
@@ -124,13 +130,31 @@ export function ChatPanel({
   const hostDisplay = t(
     host.kind === 'word' ? 'chat.hostWord' :
     host.kind === 'excel' ? 'chat.hostExcel' :
-    'chat.hostPowerpoint',
+    host.kind === 'powerpoint' ? 'chat.hostPowerpoint' :
+    'chat.hostOutlook',
   );
   const hostNoun = t(
     host.kind === 'word' ? 'chat.hostNounWord' :
     host.kind === 'excel' ? 'chat.hostNounExcel' :
-    'chat.hostNounPowerpoint',
+    host.kind === 'powerpoint' ? 'chat.hostNounPowerpoint' :
+    'chat.hostNounOutlook',
   );
+  const headerRef = useRef<HTMLDivElement | null>(null);
+  const [compactHeader, setCompactHeader] = useState(false);
+
+  // Outlook/OWA panes can be very narrow: drop the badges instead of letting
+  // them be squashed and overlap the title.
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(entries => {
+      const width = entries[0]?.contentRect.width ?? 0;
+      setCompactHeader(width > 0 && width < 380);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -161,7 +185,7 @@ export function ChatPanel({
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
+      <div className={styles.header} ref={headerRef}>
         <div className={styles.brand}>
           <img
             src={`${import.meta.env.BASE_URL}assets/icon-64.png`}
@@ -169,16 +193,20 @@ export function ChatPanel({
             className={styles.logo}
           />
           <Text className={styles.title}>AutoOffice</Text>
-          <Badge
-            appearance="outline"
-            size="small"
-            color={host.kind === 'excel' ? 'success' : host.kind === 'powerpoint' ? 'danger' : 'brand'}
-          >
-            {host.displayName}
-          </Badge>
-          <CostBadge cost={cost} providerId={providerId} />
+          {!compactHeader && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+              <Badge
+                appearance="outline"
+                size="small"
+                color={host.kind === 'excel' ? 'success' : host.kind === 'powerpoint' ? 'danger' : host.kind === 'outlook' ? 'important' : 'brand'}
+              >
+                {host.displayName}
+              </Badge>
+              <CostBadge cost={cost} providerId={providerId} />
+            </span>
+          )}
         </div>
-        <div style={{ display: 'flex', gap: '4px' }}>
+        <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
           <Tooltip content={t('chat.historyTooltip')} relationship="label">
             <Button appearance="subtle" icon={<History24Regular />} onClick={onOpenHistory} disabled={isLoading} />
           </Tooltip>
@@ -205,7 +233,9 @@ export function ChatPanel({
                 ? t('chat.exampleWord')
                 : host.kind === 'excel'
                   ? t('chat.exampleExcel')
-                  : t('chat.examplePowerpoint')}
+                  : host.kind === 'powerpoint'
+                    ? t('chat.examplePowerpoint')
+                    : t('chat.exampleOutlook')}
             </Text>
           </div>
         ) : (
@@ -219,7 +249,8 @@ export function ChatPanel({
       {pendingApproval && (
         <div className={styles.approvalArea}>
           <CodeBlock
-            code={pendingApproval}
+            code={pendingApproval.code}
+            summary={pendingApproval.summary}
             status="pending"
             onApprove={() => onApprove(true)}
             onReject={() => onApprove(false)}

@@ -4,13 +4,13 @@
 
 #define MyAppName "AutoOffice for Word, Excel & PowerPoint"
 #define MyAppVersion "1.0.0"
-#define MyAppPublisher "AutoOffice"
-#define MyAppURL "https://sivan22.github.io/autoOffice/"
+#define MyAppPublisher "AutoOffice (matthamiltonnz)"
+#define MyAppURL "https://matthamiltonnz.github.io/autoOffice/"
 #define ShareName "AutoOfficeAddin"
 #define OwnSharePath "C:\AutoOfficeAddin"
 
 [Setup]
-AppId={{B2C3D4E5-F6A7-8901-BCDE-F12345678902}
+AppId={{228f7100-8a2c-4ba3-86ee-05bbad3c9b2a}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
@@ -40,9 +40,9 @@ Source: "..\manifest.production.xml"; DestDir: "{app}"; DestName: "manifest.xml"
 ; "we had a problem reading your settings" and wipes ALL entries on Word
 ; startup. When a catalog already exists we drop our manifest into its folder
 ; instead, leaving the host catalog as the single registered entry.
-Root: HKCU; Subkey: "Software\Microsoft\Office\16.0\WEF\TrustedCatalogs\{{B2C3D4E5-F6A7-8901-BCDE-F12345678903}"; ValueType: string; ValueName: "Id"; ValueData: "{{B2C3D4E5-F6A7-8901-BCDE-F12345678903}"; Flags: uninsdeletekey; Check: ShouldCreateOwnCatalog
-Root: HKCU; Subkey: "Software\Microsoft\Office\16.0\WEF\TrustedCatalogs\{{B2C3D4E5-F6A7-8901-BCDE-F12345678903}"; ValueType: string; ValueName: "Url"; ValueData: "{code:GetNetworkPath}"; Check: ShouldCreateOwnCatalog
-Root: HKCU; Subkey: "Software\Microsoft\Office\16.0\WEF\TrustedCatalogs\{{B2C3D4E5-F6A7-8901-BCDE-F12345678903}"; ValueType: dword; ValueName: "Flags"; ValueData: "1"; Check: ShouldCreateOwnCatalog
+Root: HKCU; Subkey: "Software\Microsoft\Office\16.0\WEF\TrustedCatalogs\{{90bde6ec-f6fa-46c4-9e8a-430427c281cd}"; ValueType: string; ValueName: "Id"; ValueData: "{{90bde6ec-f6fa-46c4-9e8a-430427c281cd}"; Flags: uninsdeletekey; Check: ShouldCreateOwnCatalog
+Root: HKCU; Subkey: "Software\Microsoft\Office\16.0\WEF\TrustedCatalogs\{{90bde6ec-f6fa-46c4-9e8a-430427c281cd}"; ValueType: string; ValueName: "Url"; ValueData: "{code:GetNetworkPath}"; Check: ShouldCreateOwnCatalog
+Root: HKCU; Subkey: "Software\Microsoft\Office\16.0\WEF\TrustedCatalogs\{{90bde6ec-f6fa-46c4-9e8a-430427c281cd}"; ValueType: dword; ValueName: "Flags"; ValueData: "1"; Check: ShouldCreateOwnCatalog
 
 [Code]
 var

@@ -16,7 +16,8 @@ const useStyles = makeStyles({
 function hostKey(h: HostKind) {
   return h === 'word' ? 'history.filterWord' as const
        : h === 'excel' ? 'history.filterExcel' as const
-       : 'history.filterPowerpoint' as const;
+       : h === 'powerpoint' ? 'history.filterPowerpoint' as const
+       : 'history.filterOutlook' as const;
 }
 
 export function CrossHostBanner({ chatHost, currentHost }: { chatHost: HostKind; currentHost: HostKind }) {

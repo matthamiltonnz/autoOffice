@@ -1,4 +1,4 @@
-export const LOCAL_PROVIDER_IDS = new Set(['ollama', 'lmstudio']);
+export const LOCAL_PROVIDER_IDS = new Set(['ollama', 'lmstudio', 'openwebui']);
 
 export interface McpServerConfig {
   name: string;
@@ -38,6 +38,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     { id: 'openrouter', name: 'OpenRouter', apiKey: '' },
     { id: 'ollama', name: 'Ollama', apiKey: '', baseUrl: '' },
     { id: 'lmstudio', name: 'LM Studio', apiKey: '', baseUrl: 'http://localhost:1234/v1' },
+    { id: 'openwebui', name: 'Open WebUI', apiKey: '', baseUrl: 'http://localhost:8080/api' },
     { id: 'openai-compatible', name: 'OpenAI-Compatible', apiKey: '', baseUrl: '' },
   ],
   autoApprove: false,

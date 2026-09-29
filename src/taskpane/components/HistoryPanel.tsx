@@ -118,7 +118,8 @@ function formatRelativeAgo(
 function hostBadgeKey(h: HostKind) {
   return h === 'word' ? 'history.filterWord' as const
        : h === 'excel' ? 'history.filterExcel' as const
-       : 'history.filterPowerpoint' as const;
+       : h === 'powerpoint' ? 'history.filterPowerpoint' as const
+       : 'history.filterOutlook' as const;
 }
 
 export function HistoryPanel({
@@ -184,6 +185,7 @@ export function HistoryPanel({
           <Tab value="word">{t('history.filterWord')}</Tab>
           <Tab value="excel">{t('history.filterExcel')}</Tab>
           <Tab value="powerpoint">{t('history.filterPowerpoint')}</Tab>
+          <Tab value="outlook">{t('history.filterOutlook')}</Tab>
         </TabList>
       </div>
 

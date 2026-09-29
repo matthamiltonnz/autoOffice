@@ -17,11 +17,23 @@ export interface ExecutionResult {
   };
 }
 
-const NS: Record<HostKind, 'Word' | 'Excel' | 'PowerPoint'> = {
+const NS: Record<HostKind, 'Word' | 'Excel' | 'PowerPoint' | 'Office'> = {
   word: 'Word',
   excel: 'Excel',
   powerpoint: 'PowerPoint',
+  // Outlook has no `Outlook.run()` batch API — its object model hangs off `Office`.
+  outlook: 'Office',
 };
+
+/** Hosts whose object model exposes the `<Namespace>.run(batch)` entry point. */
+const RUN_NAMESPACES: ReadonlySet<HostKind> = new Set<HostKind>(['word', 'excel', 'powerpoint']);
+
+/** Tells the model how code should be shaped for the host it is running in. */
+function rewriteHint(host: HostKind, ns: string): string {
+  return RUN_NAMESPACES.has(host)
+    ? `Rewrite using ${ns}.run.`
+    : 'Rewrite using the Office.js Mailbox API (e.g. Office.context.mailbox.item.body.getAsync).';
+}
 
 const formatArg = (a: unknown): string => {
   if (typeof a === 'string') return a;
@@ -58,16 +70,19 @@ export class Sandbox {
       if (trimmed.startsWith(`${other}.run`)) {
         return {
           success: false,
-          error: `Code uses ${other}.run but the add-in is running in ${ns}. Rewrite using ${ns}.run.`,
+          error: `Code uses ${other}.run but the add-in is running in ${ns}. ${rewriteHint(this.host, ns)}`,
           logs: [],
         };
       }
     }
 
-    const isWrapped = trimmed.startsWith(`${ns}.run`);
-    const execCode = isWrapped
-      ? `return (${trimmed.replace(/;+\s*$/, '')});`
-      : `return ${ns}.run(async function(context) {\n${code}\n});`;
+    const isBatchHost = RUN_NAMESPACES.has(this.host);
+    const isWrapped = isBatchHost && trimmed.startsWith(`${ns}.run`);
+    const execCode = !isBatchHost
+      ? `return (async function() {\n${code}\n})();`
+      : isWrapped
+        ? `return (${trimmed.replace(/;+\s*$/, '')});`
+        : `return ${ns}.run(async function(context) {\n${code}\n});`;
 
     const logs: string[] = [];
     const capturingConsole = makeCapturingConsole(logs);
