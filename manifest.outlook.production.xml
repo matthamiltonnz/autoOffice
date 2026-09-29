@@ -36,6 +36,13 @@
   <Hosts>
     <Host Name="Mailbox" />
   </Hosts>
+  <!-- Mail add-ins that load a task pane from a remote origin need that origin
+       declared, or the pane renders empty in Outlook (desktop and web) with no
+       visible error. localhost is implicitly trusted, which is why the dev
+       manifest never needed this. -->
+  <AppDomains>
+    <AppDomain>https://matthamiltonnz.github.io</AppDomain>
+  </AppDomains>
   <Requirements>
     <Sets DefaultMinVersion="1.1">
       <Set Name="Mailbox" MinVersion="1.3" />
